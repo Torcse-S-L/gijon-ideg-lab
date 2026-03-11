@@ -1,0 +1,15 @@
+.env
+*.log
+*.tmp
+/postgres/data/
+/geoserver/data_dir/
+/geonetwork/data/
+*.bak
+*.sql.gz
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+node_modules/
