@@ -1,0 +1,205 @@
+version: "3.9"
+
+services:
+  # ─── Base de datos ────────────────────────────────────────────────────────
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: ideg_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-GISDB}
+      POSTGRES_USER: ${POSTGRES_USER:-gisadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gisadmin} -d ${POSTGRES_DB:-GISDB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ideg_net
+
+  # ─── GeoServer ────────────────────────────────────────────────────────────
+  geoserver:
+    image: kartoza/geoserver:2.25.2
+    container_name: ideg_geoserver
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER:-admin}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD:?GEOSERVER_ADMIN_PASSWORD is required}
+      INITIAL_MEMORY: ${GEOSERVER_INITIAL_MEMORY:-2G}
+      MAXIMUM_MEMORY: ${GEOSERVER_MAX_MEMORY:-4G}
+      STABLE_EXTENSIONS: vectortiles-plugin,inspire-plugin,css-plugin
+      GEOWEBCACHE_CACHE_DIR: /opt/geoserver/data_dir/gwc
+    volumes:
+      - geoserver_data:/opt/geoserver/data_dir
+      - ./geoserver/config/jvm_options.txt:/usr/local/tomcat/bin/setenv.sh:ro
+    ports:
+      - "${GEOSERVER_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/geoserver/web/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - ideg_net
+
+  # ─── GeoNetwork ───────────────────────────────────────────────────────────
+  geonetwork:
+    image: geonetwork:4.2.8
+    container_name: ideg_geonetwork
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_DIR: /catalogue-data
+      JAVA_OPTIONS: >-
+        -Dorg.eclipse.jetty.server.Request.maxFormContentSize=50000000
+        -Djava.security.egd=file:/dev/./urandom
+      GEONETWORK_DB_TYPE: postgres
+      GEONETWORK_DB_HOST: postgres
+      GEONETWORK_DB_PORT: 5432
+      GEONETWORK_DB_NAME: ${POSTGRES_DB:-GISDB}
+      GEONETWORK_DB_USERNAME: ${POSTGRES_USER:-gisadmin}
+      GEONETWORK_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - geonetwork_data:/catalogue-data
+      - ./geonetwork/config/inspire-profile.xml:/catalogue-data/config/schema_plugins/iso19139/schema-ident.xml:ro
+    ports:
+      - "${GEONETWORK_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/geonetwork/srv/eng/catalog.search || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 120s
+    networks:
+      - ideg_net
+
+  # ─── QGIS Server ──────────────────────────────────────────────────────────
+  qgis-server:
+    image: camptocamp/qgis-server:ltr-latest
+    container_name: ideg_qgisserver
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      QGIS_SERVER_LOG_LEVEL: 1
+      QGIS_SERVER_MAX_THREADS: 4
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-GISDB}
+      POSTGRES_USER: ${POSTGRES_USER:-gisadmin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - ./qgis-server/config/qgis-server.conf:/etc/apache2/sites-enabled/qgis-server.conf:ro
+      - qgis_projects:/etc/qgisserver
+    ports:
+      - "${QGIS_SERVER_PORT:-8082}:80"
+    networks:
+      - ideg_net
+
+  # ─── Visor cartográfico MapStore ─────────────────────────────────────────
+  mapstore:
+    image: geosolutionsit/mapstore2:2024.01
+    container_name: ideg_mapstore
+    restart: unless-stopped
+    depends_on:
+      - geoserver
+    environment:
+      JAVA_OPTS: "-Xms512m -Xmx1g"
+    ports:
+      - "${MAPSTORE_PORT:-80}:8080"
+    networks:
+      - ideg_net
+
+  # ─── Monitorización ───────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: ideg_prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - ideg_net
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: ideg_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-worldmap-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - ideg_net
+
+  # ─── Auditoría y logs ─────────────────────────────────────────────────────
+  elasticsearch:
+    image: elasticsearch:8.14.0
+    container_name: ideg_elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:?ELASTIC_PASSWORD is required}
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "${ES_PORT:-9200}:9200"
+    networks:
+      - ideg_net
+
+  kibana:
+    image: kibana:8.14.0
+    container_name: ideg_kibana
+    restart: unless-stopped
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD:?ELASTIC_PASSWORD is required}
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - ideg_net
+
+volumes:
+  postgres_data:
+  geoserver_data:
+  geonetwork_data:
+  qgis_projects:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  ideg_net:
+    driver: bridge
