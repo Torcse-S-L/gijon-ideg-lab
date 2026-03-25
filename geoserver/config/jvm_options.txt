@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Opciones JVM para GeoServer (Tomcat) — optimizadas para servidor con 16 GB RAM
+export CATALINA_OPTS="-server \
+  -Xms2g -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+ParallelRefProcEnabled \
+  -Dfile.encoding=UTF-8 \
+  -Djavax.servlet.request.encoding=UTF-8 \
+  -DGEOSERVER_DATA_DIR=/opt/geoserver/data_dir \
+  -DGEOWEBCACHE_CACHE_DIR=/opt/geoserver/data_dir/gwc \
+  -Dorg.geoserver.wfs.getfeature.outputtype.gml32.enabled=true \
+  -Djts.overlay=ng"
