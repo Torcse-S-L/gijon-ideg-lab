@@ -1,0 +1,63 @@
+global:
+  scrape_interval:     30s
+  evaluation_interval: 30s
+  external_labels:
+    proyecto: 'gijon-ideg'
+    entorno:  'laboratorio'
+
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+
+scrape_configs:
+  # ── GeoServer JMX ──────────────────────────────────────────────────────────
+  - job_name: 'geoserver'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['geoserver:8080']
+        labels:
+          servicio: 'geoserver'
+          componente: 'ogc'
+
+  # ── PostgreSQL Exporter ────────────────────────────────────────────────────
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          servicio: 'postgresql'
+          componente: 'bbdd'
+
+  # ── Blackbox Exporter — sondeos OGC ──────────────────────────────────────
+  - job_name: 'ogc_probes'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - 'http://geoserver:8080/geoserver/ideg/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities'
+          - 'http://geoserver:8080/geoserver/ideg/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities'
+          - 'http://geoserver:8080/geoserver/gwc/service/wmts?REQUEST=GetCapabilities'
+          - 'http://geonetwork:8080/geonetwork/srv/eng/csw?SERVICE=CSW&VERSION=2.0.2&REQUEST=GetCapabilities'
+          - 'http://qgis-server:80/qgis/qgis_mapserv.fcgi?SERVICE=WMS&REQUEST=GetCapabilities'
+        labels:
+          tipo: 'ogc'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'blackbox-exporter:9115'
+
+  # ── Node Exporter — métricas host ─────────────────────────────────────────
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          servicio: 'host'
+
+  # ── cAdvisor — métricas contenedores ─────────────────────────────────────
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          servicio: 'contenedores'

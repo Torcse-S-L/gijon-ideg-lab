@@ -1,0 +1,99 @@
+---
+groups:
+  - name: ideg_gis_alerts
+    rules:
+      # ── Disponibilidad servicios OGC ────────────────────────────────────────
+      - alert: ServicioOGCCaido
+        expr: probe_success{tipo="ogc"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          equipo: ideg
+        annotations:
+          summary: "Servicio OGC caído: {{ $labels.instance }}"
+          description: >
+            El servicio OGC {{ $labels.instance }} no responde desde hace más de 2 minutos.
+            Revisar logs de GeoServer/GeoNetwork/QGIS Server.
+
+      - alert: LatenciaOGCAlta
+        expr: probe_duration_seconds{tipo="ogc"} > 5
+        for: 5m
+        labels:
+          severity: warning
+          equipo: ideg
+        annotations:
+          summary: "Latencia alta en servicio OGC: {{ $labels.instance }}"
+          description: >
+            Latencia de {{ $value | humanizeDuration }} (> 5s) en {{ $labels.instance }}.
+
+      - alert: LatenciaOGCCritica
+        expr: probe_duration_seconds{tipo="ogc"} > 15
+        for: 2m
+        labels:
+          severity: critical
+          equipo: ideg
+        annotations:
+          summary: "Latencia crítica en servicio OGC: {{ $labels.instance }}"
+          description: "Latencia de {{ $value | humanizeDuration }} en {{ $labels.instance }}."
+
+      # ── PostgreSQL / PostGIS ────────────────────────────────────────────────
+      - alert: PostgreSQLCaido
+        expr: up{servicio="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          equipo: ideg
+        annotations:
+          summary: "PostgreSQL/PostGIS no disponible"
+          description: "La base de datos principal de la IDEG está caída."
+
+      - alert: ConexionesPostgreSQLAltas
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+          equipo: ideg
+        annotations:
+          summary: "Número de conexiones PostgreSQL alto ({{ $value }})"
+          description: "El pool de conexiones está al {{ $value }} de 100. Revisar configuración pgBouncer."
+
+      # ── Recursos del host ───────────────────────────────────────────────────
+      - alert: DiscoCritico
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.10
+        for: 5m
+        labels:
+          severity: critical
+          equipo: ideg
+        annotations:
+          summary: "Disco crítico (< 10% libre)"
+          description: "Sólo {{ $value | humanizePercentage }} de espacio libre en disco. Revisar cachés GWC y logs."
+
+      - alert: DiscoAviso
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.20
+        for: 10m
+        labels:
+          severity: warning
+          equipo: ideg
+        annotations:
+          summary: "Disco bajo (< 20% libre)"
+          description: "{{ $value | humanizePercentage }} de espacio libre."
+
+      - alert: MemoriaAlta
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          equipo: ideg
+        annotations:
+          summary: "Uso de memoria alto ({{ $value | humanizePercentage }})"
+          description: "El servidor supera el 85% de uso de RAM."
+
+      - alert: CPUAlta
+        expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.80
+        for: 10m
+        labels:
+          severity: warning
+          equipo: ideg
+        annotations:
+          summary: "CPU alta ({{ $value | humanizePercentage }})"
+          description: "Uso de CPU superior al 80% durante más de 10 minutos."
