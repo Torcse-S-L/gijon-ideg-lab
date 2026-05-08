@@ -1,0 +1,152 @@
+---
+name: CI — Validación
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Lint YAML ──────────────────────────────────────────────────────────────
+  lint-yaml:
+    name: Lint YAML
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: {max: 200}}}" \
+            docker-compose.yml \
+            monitoring/prometheus/prometheus.yml \
+            monitoring/prometheus/alerts/gis-alerts.yml \
+            monitoring/grafana/provisioning/datasources/datasources.yml \
+            .github/workflows/ci.yml
+
+  # ── Validar docker-compose ─────────────────────────────────────────────────
+  validate-compose:
+    name: Validate docker-compose
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env from example
+        run: |
+          cp .env.example .env
+          sed -i 's/cambia_esta_password/testpassword123/g' .env
+
+      - name: Validate docker-compose
+        run: docker compose config --quiet
+
+  # ── Validar SQL ────────────────────────────────────────────────────────────
+  validate-sql:
+    name: Validate SQL (PostgreSQL/PostGIS)
+    runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: GISDB
+          POSTGRES_USER: gisadmin
+          POSTGRES_PASSWORD: testpassword123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run init scripts
+        env:
+          PGPASSWORD: testpassword123
+        run: |
+          for f in postgres/init/*.sql; do
+            echo "Applying $f..."
+            psql -h localhost -p 5432 -U gisadmin -d GISDB -f "$f"
+          done
+
+      - name: Run migrations
+        env:
+          PGPASSWORD: testpassword123
+        run: |
+          psql -h localhost -p 5432 -U gisadmin -d GISDB \
+            -c "CREATE TABLE IF NOT EXISTS public.schema_migrations (id SERIAL PRIMARY KEY, filename TEXT NOT NULL UNIQUE, applied_at TIMESTAMPTZ DEFAULT now());"
+          for f in postgres/migrations/*.sql; do
+            echo "Applying $f..."
+            psql -h localhost -p 5432 -U gisadmin -d GISDB -f "$f"
+          done
+
+      - name: Verify schema structure
+        env:
+          PGPASSWORD: testpassword123
+        run: |
+          psql -h localhost -p 5432 -U gisadmin -d GISDB -c "
+            SELECT schema_name FROM information_schema.schemata
+            WHERE schema_name IN ('gis','inspire','compat','audit','catalog')
+            ORDER BY schema_name;"
+
+          psql -h localhost -p 5432 -U gisadmin -d GISDB -c "
+            SELECT tablename FROM pg_tables WHERE schemaname = 'gis' ORDER BY tablename;"
+
+      - name: Verify sample data
+        env:
+          PGPASSWORD: testpassword123
+        run: |
+          psql -h localhost -p 5432 -U gisadmin -d GISDB -c "
+            SELECT codigo_ine, nombre FROM gis.municipio WHERE codigo_ine = '33024';"
+
+          psql -h localhost -p 5432 -U gisadmin -d GISDB -c "
+            SELECT COUNT(*) AS total_recursos FROM catalog.recurso;"
+
+      - name: Verify spatial indexes
+        env:
+          PGPASSWORD: testpassword123
+        run: |
+          psql -h localhost -p 5432 -U gisadmin -d GISDB -c "
+            SELECT indexname, tablename
+            FROM pg_indexes
+            WHERE indexname LIKE 'idx_%_geom'
+            ORDER BY tablename;"
+
+  # ── Validar reglas Prometheus ──────────────────────────────────────────────
+  validate-prometheus:
+    name: Validate Prometheus rules
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install promtool
+        run: |
+          PROM_VERSION=2.53.0
+          wget -q "https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz"
+          tar xzf "prometheus-${PROM_VERSION}.linux-amd64.tar.gz"
+          sudo mv "prometheus-${PROM_VERSION}.linux-amd64/promtool" /usr/local/bin/
+
+      - name: Validate alert rules
+        run: promtool check rules monitoring/prometheus/alerts/gis-alerts.yml
+
+      - name: Validate prometheus config
+        run: promtool check config monitoring/prometheus/prometheus.yml
+
+  # ── Shell lint ────────────────────────────────────────────────────────────
+  lint-shell:
+    name: Lint shell scripts
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint scripts
+        run: |
+          find scripts/ tests/ geoserver/setup/ geonetwork/setup/ \
+            -name "*.sh" -exec shellcheck --severity=warning {} +
