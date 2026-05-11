@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe de Pruebas — gijon-ideg-lab</title>
+<style>
+  :root {
+    --green: #22c55e; --red: #ef4444; --yellow: #f59e0b;
+    --bg: #0f172a; --card: #1e293b; --border: #334155;
+    --text: #e2e8f0; --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; padding: 2rem; }
+  h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+  .summary { display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+           padding: 1rem 1.5rem; min-width: 130px; text-align: center; }
+  .stat .num { font-size: 2.2rem; font-weight: 700; }
+  .stat .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+  .pass { color: var(--green); }
+  .fail { color: var(--red); }
+  .warn { color: var(--yellow); }
+  .suite { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+            margin-bottom: 1.5rem; overflow: hidden; }
+  .suite-header { padding: 0.9rem 1.2rem; display: flex; align-items: center;
+                   gap: 0.8rem; background: #263348; cursor: pointer;
+                   border-bottom: 1px solid var(--border); }
+  .suite-header h2 { font-size: 1rem; flex: 1; }
+  .badge { border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: 600; }
+  .badge-pass { background: #14532d; color: var(--green); }
+  .badge-fail { background: #7f1d1d; color: var(--red); }
+  .badge-warn { background: #713f12; color: var(--yellow); }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 0.6rem 1.2rem; text-align: left; font-size: 0.75rem;
+        text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  td { padding: 0.55rem 1.2rem; font-size: 0.85rem; border-bottom: 1px solid #1e293b; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .status-icon { font-weight: 700; }
+  .detail { color: var(--muted); font-size: 0.78rem; }
+  .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 9999px;
+                   overflow: hidden; margin-bottom: 2rem; }
+  .progress-fill { height: 100%; border-radius: 9999px;
+                    background: linear-gradient(90deg, var(--green), #16a34a); }
+  footer { margin-top: 2rem; color: var(--muted); font-size: 0.8rem; text-align: center; }
+</style>
+</head>
+<body>
+<h1>Informe de Pruebas Estáticas</h1>
+<p class="subtitle">Proyecto: <strong>gijon-ideg-lab</strong> &nbsp;|&nbsp;
+  Exp. 15296Q/2026 — IDEG Ayuntamiento de Gijón/Xixón &nbsp;|&nbsp;
+  Generado: 2026-05-11 16:53:24 &nbsp;|&nbsp; Autor: LluisPicornell
+</p>
+
+<div class="summary">
+  <div class="stat"><div class="num">122</div><div class="lbl">Total pruebas</div></div>
+  <div class="stat"><div class="num pass">122</div><div class="lbl">PASS</div></div>
+  <div class="stat"><div class="num fail">0</div><div class="lbl">FAIL</div></div>
+  <div class="stat"><div class="num warn">0</div><div class="lbl">WARN</div></div>
+  <div class="stat"><div class="num">100%</div><div class="lbl">Tasa de éxito</div></div>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-fill" style="width:100%"></div>
+</div>
+
+<div class="suite">
+  <div class="suite-header">
+    <h2>Estructura de ficheros</h2>
+    <span class="badge badge-pass">32 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>README.md</td>
+  <td class="detail">13,573 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docker-compose.yml</td>
+  <td class="detail">7,474 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>.env.example</td>
+  <td class="detail">2,962 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>.gitignore</td>
+  <td class="detail">171 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>LICENSE</td>
+  <td class="detail">6,593 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>CHANGELOG.md</td>
+  <td class="detail">1,622 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>.github/workflows/ci.yml</td>
+  <td class="detail">5,685 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/01-extensions.sql</td>
+  <td class="detail">1,521 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/02-inspire-schema.sql</td>
+  <td class="detail">7,574 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/03-sample-data-gijon.sql</td>
+  <td class="detail">7,057 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/001_inspire_metadata.sql</td>
+  <td class="detail">3,525 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/002_compat_views.sql</td>
+  <td class="detail">3,130 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/003_audit_tables.sql</td>
+  <td class="detail">4,630 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geoserver/setup/configure_layers.sh</td>
+  <td class="detail">6,271 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geoserver/setup/configure_wmts_cache.sh</td>
+  <td class="detail">3,683 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geoserver/config/jvm_options.txt</td>
+  <td class="detail">503 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geonetwork/setup/configure_geonetwork.sh</td>
+  <td class="detail">4,825 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>qgis-server/config/apache-qgis.conf</td>
+  <td class="detail">2,150 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/prometheus/prometheus.yml</td>
+  <td class="detail">2,660 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/prometheus/alerts/gis-alerts.yml</td>
+  <td class="detail">4,042 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/grafana/provisioning/datasources/datasources.yml</td>
+  <td class="detail">439 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/grafana/provisioning/dashboards.yml</td>
+  <td class="detail">277 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/bootstrap_lab.sh</td>
+  <td class="detail">6,510 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/bootstrap_lab.ps1</td>
+  <td class="detail">3,921 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/run_migrations.sh</td>
+  <td class="detail">2,320 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/backup_restore.sh</td>
+  <td class="detail">3,506 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>tests/test_ideg_e2e.sh</td>
+  <td class="detail">6,369 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>tests/test_ogc_services.sh</td>
+  <td class="detail">4,356 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/arquitectura.md</td>
+  <td class="detail">4,361 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/analisis-infraestructura.md</td>
+  <td class="detail">4,895 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/procedimiento-operativo.md</td>
+  <td class="detail">4,600 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/propuesta-gemelo-digital.md</td>
+  <td class="detail">7,699 bytes</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Validación YAML</h2>
+    <span class="badge badge-pass">6 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docker-compose.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>.github/workflows/ci.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/prometheus/prometheus.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/prometheus/alerts/gis-alerts.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/grafana/provisioning/datasources/datasources.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>monitoring/grafana/provisioning/dashboards.yml</td>
+  <td class="detail">yamllint: sin errores (salida no estándar ignorada)</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Validación SQL</h2>
+    <span class="badge badge-pass">6 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/01-extensions.sql</td>
+  <td class="detail">27 líneas — palabras clave presentes: CREATE EXTENSION, CREATE SCHEMA</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/02-inspire-schema.sql</td>
+  <td class="detail">150 líneas — palabras clave presentes: CREATE TABLE, geometry, EPSG:25830, GIST</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/init/03-sample-data-gijon.sql</td>
+  <td class="detail">100 líneas — palabras clave presentes: INSERT INTO, 33024, Gij</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/001_inspire_metadata.sql</td>
+  <td class="detail">81 líneas — palabras clave presentes: CREATE TABLE, inspire</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/002_compat_views.sql</td>
+  <td class="detail">104 líneas — palabras clave presentes: CREATE OR REPLACE VIEW, compat</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>postgres/migrations/003_audit_tables.sql</td>
+  <td class="detail">110 líneas — palabras clave presentes: PARTITION BY, CREATE TRIGGER, audit</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Variables de entorno</h2>
+    <span class="badge badge-pass">11 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>POSTGRES_DB</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>POSTGRES_USER</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>POSTGRES_PASSWORD</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GEOSERVER_ADMIN_USER</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GEOSERVER_ADMIN_PASSWORD</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GEONETWORK_DB_USERNAME</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GEONETWORK_DB_PASSWORD</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GN_DEFAULT_LANGUAGE</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>QGIS_SERVER_LOG_LEVEL</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>GF_SECURITY_ADMIN_PASSWORD</td>
+  <td class="detail">Definida en .env.example</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>ELASTIC_PASSWORD</td>
+  <td class="detail">Definida en .env.example</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>README.md</h2>
+    <span class="badge badge-pass">13 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Tamaño</td>
+  <td class="detail">232 líneas, 10,928 bytes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Objetivo</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Arquitectura</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Inicio R</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>### Requisitos Previos</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>### Despliegue</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Servicios OGC</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Estructura del Proyecto</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Documentaci</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Puertos</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Tecnolog</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>## Licencia</td>
+  <td class="detail">Sección presente</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Badges</td>
+  <td class="detail">Badges shields.io presentes</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Historial Git</h2>
+    <span class="badge badge-pass">5 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Número de commits</td>
+  <td class="detail">17 commits</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Autor commits</td>
+  <td class="detail">Todos los commits: LluisPicornell</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Rango de fechas</td>
+  <td class="detail">Primer commit: 2026-03-11 — Último: 2026-05-11</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Conventional Commits</td>
+  <td class="detail">17/17 mensajes válidos (100%)</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Rama activa</td>
+  <td class="detail">main</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>docker-compose.yml</h2>
+    <span class="badge badge-pass">23 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: postgres</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: geoserver</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: geonetwork</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: qgis-server</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: mapstore</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: prometheus</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: grafana</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: elasticsearch</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Servicio: kibana</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 5432 (PostgreSQL/PostGIS)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 8080 (GeoServer)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 8081 (GeoNetwork)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 8082 (MapStore)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 9090 (Prometheus)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 3000 (Grafana)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 9200 (Elasticsearch)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Puerto 5601 (Kibana)</td>
+  <td class="detail">Expuesto</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Red Docker</td>
+  <td class="detail">ideg_net definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Volumen: postgres_data</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Volumen: geoserver_data</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Volumen: geonetwork_data</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Volumen: prometheus_data</td>
+  <td class="detail">Definido</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Volumen: grafana_data</td>
+  <td class="detail">Definido</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Scripts Bash</h2>
+    <span class="badge badge-pass">8 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/bootstrap_lab.sh</td>
+  <td class="detail">6,510 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/run_migrations.sh</td>
+  <td class="detail">2,320 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>scripts/backup_restore.sh</td>
+  <td class="detail">3,506 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geoserver/setup/configure_layers.sh</td>
+  <td class="detail">6,271 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geoserver/setup/configure_wmts_cache.sh</td>
+  <td class="detail">3,683 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>geonetwork/setup/configure_geonetwork.sh</td>
+  <td class="detail">4,825 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>tests/test_ideg_e2e.sh</td>
+  <td class="detail">6,369 bytes — shebang ✓ — keywords presentes</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>tests/test_ogc_services.sh</td>
+  <td class="detail">4,356 bytes — shebang ✓ — keywords presentes</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Documentación técnica</h2>
+    <span class="badge badge-pass">4 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/arquitectura.md</td>
+  <td class="detail">103 líneas — contenido verificado</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/analisis-infraestructura.md</td>
+  <td class="detail">113 líneas — contenido verificado</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/procedimiento-operativo.md</td>
+  <td class="detail">154 líneas — contenido verificado</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>docs/propuesta-gemelo-digital.md</td>
+  <td class="detail">131 líneas — contenido verificado</td>
+</tr></tbody>
+  </table>
+</div><div class="suite">
+  <div class="suite-header">
+    <h2>Prometheus / Alertas</h2>
+    <span class="badge badge-pass">14 pass</span>
+    
+    
+  </div>
+  <table>
+    <thead><tr><th>Estado</th><th>Prueba</th><th>Detalle</th></tr></thead>
+    <tbody><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Job: geoserver</td>
+  <td class="detail">Definido en prometheus.yml</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Job: postgres</td>
+  <td class="detail">Definido en prometheus.yml</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Job: ogc_probes</td>
+  <td class="detail">Definido en prometheus.yml</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Job: node</td>
+  <td class="detail">Definido en prometheus.yml</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Job: cadvisor</td>
+  <td class="detail">Definido en prometheus.yml</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: ServicioOGCCaido</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: LatenciaOGCAlta</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: LatenciaOGCCritica</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: PostgreSQLCaido</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: ConexionesPostgreSQLAltas</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: DiscoCritico</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: DiscoAviso</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: MemoriaAlta</td>
+  <td class="detail">Definida</td>
+</tr><tr>
+  <td><span class="status-icon pass">✔ PASS</span></td>
+  <td>Alerta: CPUAlta</td>
+  <td class="detail">Definida</td>
+</tr></tbody>
+  </table>
+</div>
+
+<footer>
+  gijon-ideg-lab &copy; 2026 Torcse S.L. &mdash; Apache 2.0 &mdash;
+  <a href="https://github.com/Torcse-S-L/gijon-ideg-lab" style="color:#60a5fa">
+    github.com/Torcse-S-L/gijon-ideg-lab</a>
+</footer>
+</body>
+</html>
